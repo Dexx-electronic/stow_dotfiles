@@ -2,6 +2,7 @@ return {
 	{
 		"rose-pine/neovim",
 		name = "rose-pine",
+		enabled = true, --
 		--priority = 1000, -- ensures it loads before other UI plugins
 		config = function()
 			require("rose-pine").setup({
@@ -11,7 +12,7 @@ return {
 				disable_float_background = false,
 				disable_italics = false,
 			})
-			vim.cmd("colorscheme rose-pine")
+			--	vim.cmd("colorscheme rose-pine")
 		end,
 	},
 }
