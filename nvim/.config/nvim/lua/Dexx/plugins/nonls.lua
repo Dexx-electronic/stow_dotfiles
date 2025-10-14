@@ -11,7 +11,7 @@ return {
 
 		-- Ensure tools are installed globally via Mason
 		mason_null.setup({
-			ensure_installed = { "black", "isort", "mypy", "stylua", "ruff", "clangd" },
+			ensure_installed = { "black", "isort", "mypy", "stylua", "ruff", "clangd", "cortex-debug" },
 			automatic_installation = true,
 		})
 

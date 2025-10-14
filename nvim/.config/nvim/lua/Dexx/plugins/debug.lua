@@ -23,6 +23,7 @@ return {
 
 		-- Add your own debuggers here
 		"mfussenegger/nvim-dap-python",
+		"jedrzejboczar/nvim-dap-cortex-debug", -- Added for STM32 debugging
 	},
 	keys = {
 		-- Basic debugging keymaps, feel free to change to your liking!
@@ -122,16 +123,28 @@ return {
 		})
 
 		-- Change breakpoint icons
-		-- vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
-		-- vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
-		-- local breakpoint_icons = vim.g.have_nerd_font
-		--     and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
-		--   or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
-		-- for type, icon in pairs(breakpoint_icons) do
-		--   local tp = 'Dap' .. type
-		--   local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
-		--   vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
-		-- end
+		vim.api.nvim_set_hl(0, "DapBreak", { fg = "#e51400" })
+		vim.api.nvim_set_hl(0, "DapStop", { fg = "#ffcc00" })
+		local breakpoint_icons = vim.g.have_nerd_font
+				and {
+					Breakpoint = "",
+					BreakpointCondition = "",
+					BreakpointRejected = "",
+					LogPoint = "",
+					Stopped = "",
+				}
+			or {
+				Breakpoint = "●",
+				BreakpointCondition = "⊜",
+				BreakpointRejected = "⊘",
+				LogPoint = "◆",
+				Stopped = "⭔",
+			}
+		for type, icon in pairs(breakpoint_icons) do
+			local tp = "Dap" .. type
+			local hl = (type == "Stopped") and "DapStop" or "DapBreak"
+			vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
+		end
 
 		dap.listeners.after.event_initialized["dapui_config"] = dapui.open
 		dap.listeners.before.event_terminated["dapui_config"] = dapui.close
@@ -164,6 +177,71 @@ return {
 				argsString = "",
 				env = {},
 				terminalKind = "integrated",
+			},
+		}
+
+		--		-- Install STM32 (Cortex-M) specific config
+		--		require("dap-cortex-debug").setup({
+		--			extension_path = vim.fn.stdpath("data") .. "/mason/packages/cortex-debug/extension", -- Path to cortex-debug
+		--		})
+		--
+		--		dap.configurations.c = {
+		--			{
+		--				name = "Debug STM32F1 (OpenOCD)",
+		--				type = "cortex-debug",
+		--				request = "launch",
+		--				servertype = "openocd",
+		--				cwd = "${workspaceFolder}",
+		--				executable = "dexx-diversity.elf", -- Path to your compiled ELF file
+		--				device = "STM32F103C8", -- Adjust for your specific STM32F1 chip
+		--				configFiles = {
+		--					"openocd.cfg", -- Path to OpenOCD config file
+		--				},
+		--				runToEntryPoint = "main", -- Start at main() function
+		--				showDevDebugOutput = "raw", -- For verbose debug logs
+		--				-- Optional: Uncomment if using STM32CubeProgrammer
+		--				-- stm32CubeProgrammerPath = "/path/to/STM32CubeProgrammer/bin/STM32_Programmer_CLI",
+		--			},
+		-- Cortex-Debug Adapter
+		require("dap-cortex-debug").setup({
+			extension_path = vim.fn.stdpath("data") .. "/mason/packages/cortex-debug/extension",
+		})
+
+		-- Helper: open a Neovim terminal showing OpenOCD output
+		local function open_openocd_terminal(cmd)
+			vim.cmd("botright split | resize 10 | terminal " .. cmd)
+			vim.cmd("file [OpenOCD]")
+		end
+
+		-- STM32F103C8 DAP Configuration
+		dap.configurations.c = {
+			{
+				name = "STM32F103C8 (OpenOCD)",
+				type = "cortex-debug",
+				request = "attach",
+				servertype = "openocd",
+				cwd = "${workspaceFolder}",
+				executable = "dexx-diversity.elf",
+				device = "STM32F103C8",
+				runToEntryPoint = "main",
+				showDevDebugOutput = "raw",
+
+				-- Set your OpenOCD config
+				configFiles = { "openocd.cfg" },
+
+				-- Explicit GDB path to fix missing executable error
+				gdbPath = "/usr/bin/arm-none-eabi-gdb",
+
+				--				-- Hook: before starting, open OpenOCD terminal
+				--				preLaunchTask = function()
+				--					-- Adjust to your OpenOCD path if needed
+				--					local cmd = "openocd -f openocd.cfg"
+				--					open_openocd_terminal(cmd)
+				--				end,
+				--
+				--				postLaunchTask = function()
+				--					vim.notify("OpenOCD launched in TERMINAL tab.", vim.log.levels.INFO)
+				--				end,
 			},
 		}
 	end,

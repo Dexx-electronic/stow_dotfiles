@@ -1,4 +1,3 @@
--- lua/plugins/lsp.lua
 return {
 	{
 		"williamboman/mason.nvim",
@@ -20,7 +19,6 @@ return {
 		dependencies = { "williamboman/mason-lspconfig.nvim" },
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-			local lspconfig = require("lspconfig")
 
 			-- Buffer-local keymaps for LSP
 			local on_attach = function(client, bufnr)
@@ -42,32 +40,50 @@ return {
 			})
 
 			-- Lua LSP
-			lspconfig.lua_ls.setup({
+			vim.lsp.config["lua_ls"] = {
+				enabled = true,
 				capabilities = capabilities,
-			})
+				on_attach = on_attach,
+			}
 
 			-- Bash LSP
-			lspconfig.bashls.setup({ on_attach = on_attach, capabilities = capabilities })
-			-- Clangd
-			lspconfig.clangd.setup({
-				cmd = { "clangd" },
-				filetypes = { "c", "cpp" },
-				root_dir = require("lspconfig.util").root_pattern("Makefile", ".git"),
+			vim.lsp.config["bashls"] = {
+				enabled = true,
 				on_attach = on_attach,
 				capabilities = capabilities,
-			})
+			}
+
+			-- Clangd
+			vim.lsp.config["clangd"] = {
+				enabled = true,
+				cmd = { "clangd", "--log=verbose" },
+				filetypes = { "c", "cpp" },
+				root_dir = vim.fs.root(0, { "Makefile", ".git", "compile_commands.json" }) or vim.fn.getcwd(),
+				on_attach = on_attach,
+				capabilities = capabilities,
+			}
 
 			-- Python LSP with project .venv detection
-			lspconfig.pyright.setup({
+			vim.lsp.config["pyright"] = {
+				enabled = true,
 				on_attach = on_attach,
 				capabilities = capabilities,
 				before_init = function(_, config)
 					local venv = vim.fn.getcwd() .. "/.venv"
 					if vim.fn.isdirectory(venv) == 1 then
+						config.settings = config.settings or {}
+						config.settings.python = config.settings.python or {}
 						config.settings.python.pythonPath = venv .. "/bin/python"
 					end
 				end,
-			})
+			}
+
+			-- Automatically start enabled LSPs
+			for server, config in pairs(vim.lsp.config) do
+				if config.enabled then
+					vim.lsp.start(config)
+				end
+			end
 		end,
 	},
 }
