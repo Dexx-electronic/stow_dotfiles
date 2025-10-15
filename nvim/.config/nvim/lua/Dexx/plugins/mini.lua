@@ -1,25 +1,22 @@
-return{
-{
-	"echasnovski/mini.nvim",
-	version = false, -- always use latest
-	enabled = false, -- 			Temporary disable this module
-  config = function()
-	  require("mini.files").setup({
-		  mappings = {
-			  close = "q",
-			  go_in = "l",
-			  go_out = "h",
-			  reset = "<BS>",
-			  reveal_cwd = "@",
-			  show_help = "g?",
-      },
-    })
+return {
+	{
+		"echasnovski/mini.nvim",
+		config = function()
+			require("mini.comment").setup({
+				mappings = {
+					-- Toggle comment on current line (like `gcc`)
+					comment_line = "gcc",
 
-    require("mini.comment").setup()
-    require("mini.statusline").setup()
-    -- Add more modules as needed
-  end,
+					-- Toggle comment on visual selection (like `gc`)
+					comment_visual = "gc",
+
+					-- Toggle comment on motion (like `gc{motion}`)
+					comment = "gc",
+				},
+			})
+
+			-- require("mini.statusline").setup()
+			-- Add more modules as needed
+		end,
+	},
 }
-
-}
-
