@@ -11,7 +11,7 @@ return {
 
 		-- Ensure tools are installed globally via Mason
 		mason_null.setup({
-			ensure_installed = { "black", "isort", "mypy", "stylua", "ruff", "clangd", "cortex-debug" },
+			ensure_installed = { "black", "isort", "mypy", "stylua", "ruff", "clangd", "clang-format", "cortex-debug" },
 			automatic_installation = true,
 		})
 
@@ -21,9 +21,7 @@ return {
 			null_ls.builtins.formatting.isort,
 			null_ls.builtins.formatting.stylua,
 			null_ls.builtins.diagnostics.ruff,
-			null_ls.builtins.diagnostics.mypy.with({
-				command = "./.venv/bin/mypy", -- force .venv Python
-			}),
+			null_ls.builtins.diagnostics.mypy.with({}),
 		}
 		null_ls.setup({
 			sources = sources,

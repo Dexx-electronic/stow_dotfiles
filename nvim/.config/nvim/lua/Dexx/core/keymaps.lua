@@ -9,3 +9,12 @@ vim.keymap.set(
 	"<leader>fs",
 	':!make && openocd -f .openocd.cfg -c "program dexx-diversity.elf verify reset exit"<CR>'
 )
+-- Save current file with <leader>sf
+vim.keymap.set("n", "<leader>sf", ":w<CR>", { desc = "Save current file" })
+
+-- Save all files with <leader>saf
+vim.keymap.set("n", "<leader>saf", ":wa<CR>", { desc = "Save all files" })
+vim.cmd([[
+  highlight QuickFixLine cterm=bold ctermfg=White ctermbg=DarkRed 
+  highlight link WarningMsg Todo
+]])

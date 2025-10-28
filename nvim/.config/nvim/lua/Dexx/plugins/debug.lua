@@ -25,6 +25,7 @@ return {
 		"mfussenegger/nvim-dap-python",
 		"jedrzejboczar/nvim-dap-cortex-debug", -- Added for STM32 debugging
 	},
+
 	keys = {
 		-- Basic debugging keymaps, feel free to change to your liking!
 		{
@@ -81,7 +82,20 @@ return {
 	config = function()
 		local dap = require("dap")
 		local dapui = require("dapui")
-
+		-- Highlight errors and warnings in quickfix
+		vim.api.nvim_create_augroup("ColorQuickfix", {})
+		vim.api.nvim_create_autocmd("FileType", {
+			group = "ColorQuickfix",
+			pattern = "qf",
+			callback = function()
+				vim.cmd([[
+        syntax match ErrorMsg /\v(error|undefined|fatal):/ containedin=ALL
+        syntax match WarningMsg /\v(warning|deprecated):/ containedin=ALL
+        highlight ErrorMsg ctermfg=Red guifg=Red
+        highlight WarningMsg ctermfg=Yellow guifg=Yellow
+      ]])
+			end,
+		})
 		require("mason-nvim-dap").setup({
 			-- Makes a best effort to setup the various debuggers with
 			-- reasonable debug configurations

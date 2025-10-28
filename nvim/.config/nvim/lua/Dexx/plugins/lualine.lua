@@ -53,7 +53,21 @@ return {
 					lualine_z = {},
 				},
 				tabline = {},
-				winbar = {},
+				winbar = {
+					lualine_a = { "mode" },
+					lualine_b = {},
+					lualine_c = {
+						{
+							"filename",
+							path = 1, -- 0 = just filename, 1 = relative path, 2 = absolute path
+							symbols = { modified = " ", readonly = " ", unnamed = " No Name" },
+						},
+					},
+					lualine_x = {},
+					lualine_y = {},
+					lualine_z = {},
+				},
+
 				inactive_winbar = {},
 				extensions = {},
 			})
